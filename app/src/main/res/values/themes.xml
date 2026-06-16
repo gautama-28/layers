@@ -1,0 +1,4 @@
+<resources>
+    <!-- Base application theme; actual theming is handled in Compose (ui/theme). -->
+    <style name="Theme.ShopEase" parent="android:Theme.Material.Light.NoActionBar" />
+</resources>
