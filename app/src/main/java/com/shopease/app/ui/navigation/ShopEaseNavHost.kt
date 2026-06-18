@@ -24,6 +24,8 @@ import com.shopease.app.ui.productlist.ProductListScreen
 import com.shopease.app.ui.productlist.ProductListViewModel
 import com.shopease.app.ui.search.SearchScreen
 import com.shopease.app.ui.search.SearchViewModel
+import com.shopease.app.ui.wishlist.WishlistScreen
+import com.shopease.app.ui.wishlist.WishlistViewModel
 
 /**
  * Root NavHost. ProductList is fully wired (Phase 4); remaining screens get
@@ -66,7 +68,15 @@ fun ShopEaseNavHost(
             )
         }
         composable(Screen.Wishlist.route) {
-            PlaceholderScreen(label = "Wishlist — coming in Phase 6")
+            val viewModel: WishlistViewModel = viewModel(
+                factory = ViewModelFactory { WishlistViewModel(container.wishlistRepository) }
+            )
+            WishlistScreen(
+                viewModel = viewModel,
+                onNavigateToProductDetail = { productId ->
+                    navController.navigate(Screen.ProductDetail.createRoute(productId))
+                }
+            )
         }
         composable(Screen.Cart.route) {
             PlaceholderScreen(label = "Cart — coming in Phase 6")
@@ -84,7 +94,12 @@ fun ShopEaseNavHost(
             val productId = backStackEntry.arguments?.getString("productId") ?: return@composable
             val viewModel: ProductDetailViewModel = viewModel(
                 factory = ViewModelFactory {
-                    ProductDetailViewModel(productId, container.productRepository, container.cartRepository)
+                    ProductDetailViewModel(
+                        productId,
+                        container.productRepository,
+                        container.cartRepository,
+                        container.wishlistRepository
+                    )
                 }
             )
             ProductDetailScreen(

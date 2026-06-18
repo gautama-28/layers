@@ -7,9 +7,11 @@ import com.shopease.app.data.local.datastore.UserPreferencesDataStore
 import com.shopease.app.data.repository.CartRepositoryImpl
 import com.shopease.app.data.repository.ProductRepositoryImpl
 import com.shopease.app.data.repository.UserPreferencesRepositoryImpl
+import com.shopease.app.data.repository.WishlistRepositoryImpl
 import com.shopease.app.domain.repository.CartRepository
 import com.shopease.app.domain.repository.ProductRepository
 import com.shopease.app.domain.repository.UserPreferencesRepository
+import com.shopease.app.domain.repository.WishlistRepository
 
 /**
  * Simple manual dependency container (ServiceLocator pattern).
@@ -33,14 +35,16 @@ class AppContainer(private val context: Context) {
         UserPreferencesDataStore(context)
     }
 
-    // TODO Phase 5/7: expose WishlistRepository (backed by Room, added in a later migration)
-
     val productRepository: ProductRepository by lazy {
         ProductRepositoryImpl(assetDataSource)
     }
 
     val cartRepository: CartRepository by lazy {
         CartRepositoryImpl(database.cartDao())
+    }
+
+    val wishlistRepository: WishlistRepository by lazy {
+        WishlistRepositoryImpl(database.wishlistDao())
     }
 
     val userPreferencesRepository: UserPreferencesRepository by lazy {
