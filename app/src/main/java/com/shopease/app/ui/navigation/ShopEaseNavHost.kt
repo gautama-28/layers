@@ -18,6 +18,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.shopease.app.ShopEaseApplication
 import com.shopease.app.ui.base.ViewModelFactory
+import com.shopease.app.ui.cart.CartScreen
+import com.shopease.app.ui.cart.CartViewModel
 import com.shopease.app.ui.productdetail.ProductDetailScreen
 import com.shopease.app.ui.productdetail.ProductDetailViewModel
 import com.shopease.app.ui.productlist.ProductListScreen
@@ -79,7 +81,13 @@ fun ShopEaseNavHost(
             )
         }
         composable(Screen.Cart.route) {
-            PlaceholderScreen(label = "Cart — coming in Phase 6")
+            val viewModel: CartViewModel = viewModel(
+                factory = ViewModelFactory { CartViewModel(container.cartRepository) }
+            )
+            CartScreen(
+                viewModel = viewModel,
+                onNavigateToCheckout = { navController.navigate(Screen.Checkout.route) }
+            )
         }
         composable(Screen.Checkout.route) {
             PlaceholderScreen(label = "Checkout — coming in Phase 7")
