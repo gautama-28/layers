@@ -11,13 +11,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.shopease.app.ShopEaseApplication
 import com.shopease.app.ui.base.ViewModelFactory
+import com.shopease.app.ui.productdetail.ProductDetailScreen
+import com.shopease.app.ui.productdetail.ProductDetailViewModel
 import com.shopease.app.ui.productlist.ProductListScreen
 import com.shopease.app.ui.productlist.ProductListViewModel
+import com.shopease.app.ui.search.SearchScreen
+import com.shopease.app.ui.search.SearchViewModel
 
 /**
  * Root NavHost. ProductList is fully wired (Phase 4); remaining screens get
@@ -47,7 +53,17 @@ fun ShopEaseNavHost(
             )
         }
         composable(Screen.Search.route) {
-            PlaceholderScreen(label = "Search — coming in Phase 5")
+            val viewModel: SearchViewModel = viewModel(
+                factory = ViewModelFactory {
+                    SearchViewModel(container.productRepository, container.cartRepository)
+                }
+            )
+            SearchScreen(
+                viewModel = viewModel,
+                onNavigateToProductDetail = { productId ->
+                    navController.navigate(Screen.ProductDetail.createRoute(productId))
+                }
+            )
         }
         composable(Screen.Wishlist.route) {
             PlaceholderScreen(label = "Wishlist — coming in Phase 6")
@@ -61,8 +77,20 @@ fun ShopEaseNavHost(
         composable(Screen.Profile.route) {
             PlaceholderScreen(label = "Profile — coming in Phase 7")
         }
-        composable(Screen.ProductDetail.route) {
-            PlaceholderScreen(label = "Product Detail — coming in Phase 5")
+        composable(
+            route = Screen.ProductDetail.route,
+            arguments = listOf(navArgument("productId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val productId = backStackEntry.arguments?.getString("productId") ?: return@composable
+            val viewModel: ProductDetailViewModel = viewModel(
+                factory = ViewModelFactory {
+                    ProductDetailViewModel(productId, container.productRepository, container.cartRepository)
+                }
+            )
+            ProductDetailScreen(
+                viewModel = viewModel,
+                onNavigateBack = { navController.popBackStack() }
+            )
         }
     }
 }
