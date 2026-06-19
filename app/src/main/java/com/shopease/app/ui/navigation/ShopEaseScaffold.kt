@@ -1,5 +1,6 @@
 package com.shopease.app.ui.navigation
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
@@ -12,6 +13,8 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -74,7 +77,7 @@ fun ShopEaseScaffold() {
         // intentionally don't re-apply paddingValues here beyond what NavHost needs —
         // ShopEaseNavHost's screens are full Scaffolds themselves.
         androidx.compose.foundation.layout.Box(
-            modifier = androidx.compose.ui.Modifier.padding(bottom = paddingValues.calculateBottomPadding())
+            modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding())
         ) {
             ShopEaseNavHost(navController = navController)
         }

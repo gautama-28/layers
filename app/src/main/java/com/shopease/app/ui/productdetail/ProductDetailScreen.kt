@@ -134,7 +134,7 @@ private fun ProductDetailContent(
                     .fillMaxWidth()
                     .aspectRatio(1f)
                     .sharedElement(
-                        sharedContentState = rememberSharedContentState(
+                        state = rememberSharedContentState(
                             key = SharedElementKeys.productImage(product.id)
                         ),
                         animatedVisibilityScope = animatedVisibilityScope
