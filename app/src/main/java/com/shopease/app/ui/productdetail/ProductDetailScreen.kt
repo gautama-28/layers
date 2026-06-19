@@ -1,5 +1,8 @@
 package com.shopease.app.ui.productdetail
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,13 +40,16 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.shopease.app.ui.components.SharedElementKeys
 import kotlinx.coroutines.flow.collectLatest
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
 fun ProductDetailScreen(
     viewModel: ProductDetailViewModel,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -69,10 +75,15 @@ fun ProductDetailScreen(
                 },
                 actions = {
                     IconButton(onClick = { viewModel.setEvent(ProductDetailEvent.WishlistToggled) }) {
-                        Icon(
-                            imageVector = if (state.isWishlisted) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                            contentDescription = "Toggle wishlist"
-                        )
+                        androidx.compose.animation.Crossfade(
+                            targetState = state.isWishlisted,
+                            label = "wishlist_heart"
+                        ) { isWishlisted ->
+                            Icon(
+                                imageVector = if (isWishlisted) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                                contentDescription = "Toggle wishlist"
+                            )
+                        }
                     }
                 }
             )
@@ -88,16 +99,24 @@ fun ProductDetailScreen(
                 state.isLoading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 state.errorMessage != null ->
                     Text(state.errorMessage ?: "", modifier = Modifier.align(Alignment.Center))
-                state.product != null -> ProductDetailContent(state, viewModel)
+                state.product != null -> ProductDetailContent(
+                    state,
+                    viewModel,
+                    sharedTransitionScope,
+                    animatedVisibilityScope
+                )
             }
         }
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 private fun ProductDetailContent(
     state: ProductDetailState,
-    viewModel: ProductDetailViewModel
+    viewModel: ProductDetailViewModel,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope
 ) {
     val product = state.product ?: return
     Column(
@@ -106,14 +125,22 @@ private fun ProductDetailContent(
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
-        AsyncImage(
-            model = product.imageUrl,
-            contentDescription = product.name,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(1f)
-        )
+        with(sharedTransitionScope) {
+            AsyncImage(
+                model = product.imageUrl,
+                contentDescription = product.name,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1f)
+                    .sharedElement(
+                        sharedContentState = rememberSharedContentState(
+                            key = SharedElementKeys.productImage(product.id)
+                        ),
+                        animatedVisibilityScope = animatedVisibilityScope
+                    )
+            )
+        }
 
         Text(
             text = product.name,

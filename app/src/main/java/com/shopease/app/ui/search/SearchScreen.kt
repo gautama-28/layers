@@ -1,7 +1,11 @@
 package com.shopease.app.ui.search
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -32,11 +36,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.shopease.app.ui.components.ProductCard
 import kotlinx.coroutines.flow.collectLatest
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
 fun SearchScreen(
     viewModel: SearchViewModel,
-    onNavigateToProductDetail: (String) -> Unit
+    onNavigateToProductDetail: (String) -> Unit,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -57,7 +63,7 @@ fun SearchScreen(
     ) { paddingValues ->
         Box(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
             Box(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-                androidx.compose.foundation.layout.Column {
+                Column {
                     OutlinedTextField(
                         value = state.query,
                         onValueChange = { viewModel.setEvent(SearchEvent.QueryChanged(it)) },
@@ -94,7 +100,9 @@ fun SearchScreen(
                                             },
                                             onAddToCartClick = {
                                                 viewModel.setEvent(SearchEvent.AddToCartClicked(product))
-                                            }
+                                            },
+                                            sharedTransitionScope = sharedTransitionScope,
+                                            animatedVisibilityScope = animatedVisibilityScope
                                         )
                                     }
                                 }

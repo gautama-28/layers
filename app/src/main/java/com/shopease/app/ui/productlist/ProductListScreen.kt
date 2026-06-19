@@ -1,5 +1,8 @@
 package com.shopease.app.ui.productlist
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -31,11 +34,13 @@ import com.shopease.app.domain.model.Product
 import com.shopease.app.ui.components.ProductCard
 import kotlinx.coroutines.flow.collectLatest
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
 fun ProductListScreen(
     viewModel: ProductListViewModel,
-    onNavigateToProductDetail: (String) -> Unit
+    onNavigateToProductDetail: (String) -> Unit,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -75,7 +80,9 @@ fun ProductListScreen(
                         state = state,
                         onCategorySelected = { viewModel.setEvent(ProductListEvent.CategorySelected(it)) },
                         onProductClick = { viewModel.setEvent(ProductListEvent.ProductClicked(it)) },
-                        onAddToCartClick = { viewModel.setEvent(ProductListEvent.AddToCartClicked(it)) }
+                        onAddToCartClick = { viewModel.setEvent(ProductListEvent.AddToCartClicked(it)) },
+                        sharedTransitionScope = sharedTransitionScope,
+                        animatedVisibilityScope = animatedVisibilityScope
                     )
                 }
             }
@@ -83,12 +90,15 @@ fun ProductListScreen(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 private fun ProductListContent(
     state: ProductListState,
     onCategorySelected: (String?) -> Unit,
     onProductClick: (String) -> Unit,
-    onAddToCartClick: (Product) -> Unit
+    onAddToCartClick: (Product) -> Unit,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         LazyVerticalGrid(
@@ -121,7 +131,9 @@ private fun ProductListContent(
                 ProductCard(
                     product = product,
                     onClick = { onProductClick(product.id) },
-                    onAddToCartClick = { onAddToCartClick(product) }
+                    onAddToCartClick = { onAddToCartClick(product) },
+                    sharedTransitionScope = sharedTransitionScope,
+                    animatedVisibilityScope = animatedVisibilityScope
                 )
             }
         }

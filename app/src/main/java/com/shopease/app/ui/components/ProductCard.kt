@@ -1,5 +1,8 @@
 package com.shopease.app.ui.components
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,11 +30,14 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.shopease.app.domain.model.Product
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun ProductCard(
     product: Product,
     onClick: () -> Unit,
     onAddToCartClick: () -> Unit,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -41,14 +47,22 @@ fun ProductCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column {
-            AsyncImage(
-                model = product.imageUrl,
-                contentDescription = product.name,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(1f)
-            )
+            with(sharedTransitionScope) {
+                AsyncImage(
+                    model = product.imageUrl,
+                    contentDescription = product.name,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(1f)
+                        .sharedElement(
+                            sharedContentState = rememberSharedContentState(
+                                key = SharedElementKeys.productImage(product.id)
+                            ),
+                            animatedVisibilityScope = animatedVisibilityScope
+                        )
+                )
+            }
 
             Column(modifier = Modifier.padding(12.dp)) {
                 Text(
