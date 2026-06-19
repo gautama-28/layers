@@ -20,6 +20,8 @@ import com.shopease.app.ShopEaseApplication
 import com.shopease.app.ui.base.ViewModelFactory
 import com.shopease.app.ui.cart.CartScreen
 import com.shopease.app.ui.cart.CartViewModel
+import com.shopease.app.ui.checkout.CheckoutScreen
+import com.shopease.app.ui.checkout.CheckoutViewModel
 import com.shopease.app.ui.productdetail.ProductDetailScreen
 import com.shopease.app.ui.productdetail.ProductDetailViewModel
 import com.shopease.app.ui.productlist.ProductListScreen
@@ -90,7 +92,18 @@ fun ShopEaseNavHost(
             )
         }
         composable(Screen.Checkout.route) {
-            PlaceholderScreen(label = "Checkout — coming in Phase 7")
+            val viewModel: CheckoutViewModel = viewModel(
+                factory = ViewModelFactory { CheckoutViewModel(container.cartRepository) }
+            )
+            CheckoutScreen(
+                viewModel = viewModel,
+                onOrderPlaced = {
+                    navController.navigate(Screen.ProductList.route) {
+                        popUpTo(Screen.ProductList.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
+            )
         }
         composable(Screen.Profile.route) {
             PlaceholderScreen(label = "Profile — coming in Phase 7")
